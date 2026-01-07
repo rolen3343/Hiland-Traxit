@@ -1,0 +1,20 @@
+h1{font-size:1.4rem;margin:0 0 8px}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:0;background:#fff;color:#111;background-image:url('/static/hiland_bg.svg');background-size:cover;background-position:center}
+.container{max-width:720px;margin:0 auto;padding:16px;background:rgba(255,255,255,0.95);min-height:100vh}
+h1{font-size:1.4rem;margin:0 0 8px}
+label{display:block;margin-bottom:8px}
+.row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.row select,.row input{flex:1;padding:8px}
+.row .remove{flex:0 0 36px;background:#e74c3c;color:#fff;border:none;padding:8px;border-radius:4px}
+.controls{display:flex;gap:8px;margin:8px 0}
+.controls .btn, .controls button{padding:8px 12px;background:#2d9cdb;color:#fff;border:none;border-radius:6px;text-decoration:none}
+.exclude{font-size:0.8rem;display:flex;align-items:center;gap:6px}
+section h2{font-size:1.1rem;margin-top:16px}
+.entry{padding:6px 0;border-bottom:1px solid #eee}
+.entry{padding:6px 0;border-bottom:1px solid #eee}
+/* Subtype color helpers */
+.sub-whole{background:#fff0f0;border-left:4px solid #ff4d4d;padding:6px;border-radius:4px}
+.sub-2pct{background:#e8f2ff;border-left:4px solid #2d6df6;padding:6px;border-radius:4px}
+.sub-1pct{background:#eaf9ff;border-left:4px solid #5bc0de;padding:6px;border-radius:4px}
+.sub-skim{background:#fff0f8;border-left:4px solid #ff66b2;padding:6px;border-radius:4px}
+@media (max-width:420px){.row{flex-direction:column;align-items:stretch}.row .remove{width:100%}}

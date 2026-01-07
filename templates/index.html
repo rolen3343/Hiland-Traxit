@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Hiland Dairy - Gallon Filler</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <main class="container">
+    <header class="topbar">
+      <img src="/static/hiland.png" id="logo" alt="Hiland logo">
+      <h1>Gallon Filler Worker: Austin.</h1>
+    </header>
+    <label>Date
+      <input id="date" type="date">
+    </label>
+
+    <div id="rows"></div>
+    <div class="controls">
+      <button id="addRow">Add Row</button>
+      <button id="submit">Submit</button>
+      <button id="clear">Clear All</button>
+      <a class="btn" id="export" href="/export">Export CSV</a>
+    </div>
+
+    <section>
+      <h2>Run sheet Entries:</h2>
+      <div id="entries"></div>
+    </section>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>
