@@ -4,6 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const submitBtn = document.getElementById('submit');
   const entriesEl = document.getElementById('entries');
   const dateInput = document.getElementById('date');
+  const runsheetInput = document.getElementById('runsheetImage');
+  const scanBtn = document.getElementById('scanRunsheet');
+  const ocrStatus = document.getElementById('ocrStatus');
+  const imagePreview = document.getElementById('imagePreview');
+  
 
   let BRANDS = [];
 
@@ -100,6 +105,79 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   addRowBtn.addEventListener('click', ()=> addRow());
+
+  // Show image preview when file is selected
+  if(runsheetInput){
+    runsheetInput.addEventListener('change', (e)=>{
+      if(imagePreview && e.target.files && e.target.files.length > 0){
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (ev)=>{
+          imagePreview.innerHTML = `<div><img src="${ev.target.result}" style="max-width:100%; max-height:300px; border:1px solid #ccc; border-radius:4px;"><br><small>Selected: ${file.name}</small></div>`;
+        };
+        reader.readAsDataURL(file);
+        if(ocrStatus) ocrStatus.textContent = 'Image ready. Click "Scan & Prefill" to process.';
+      } else {
+        if(imagePreview) imagePreview.innerHTML = '';
+      }
+    });
+  }
+
+  function prefillFromOCR(items){
+    if(!Array.isArray(items) || items.length===0){
+      if(ocrStatus) ocrStatus.textContent = 'No items detected.';
+      return;
+    }
+    items.forEach(it=>{
+      addRow({
+        brand: it.brand,
+        subtype: it.subtype,
+        size: it.size,
+        quantity: it.quantity,
+        exclude: !!it.exclude
+      });
+    });
+    if(ocrStatus) ocrStatus.textContent = `Added ${items.length} rows from OCR.`;
+  }
+
+  if(scanBtn){
+    scanBtn.addEventListener('click', ()=>{
+      if(!runsheetInput || !runsheetInput.files || runsheetInput.files.length===0){
+        if(ocrStatus) ocrStatus.textContent = 'Please select an image first.';
+        return;
+      }
+      const file = runsheetInput.files[0];
+      const fd = new FormData();
+      fd.append('image', file);
+      if(ocrStatus) ocrStatus.textContent = 'Scanning…';
+      fetch('/api/ocr', {
+        method: 'POST', body: fd
+      }).then(r=>r.json()).then(j=>{
+        if(j.ok){
+          prefillFromOCR(j.items);
+          // Show raw text and debug info
+          if(ocrStatus){
+            const count = j.detected_count || 0;
+            ocrStatus.innerHTML = `Found ${count} entries. <a href="#" id="showRawText" style="color:#2d9cdb;">Show OCR text</a> | <a href="#" id="showDebug" style="color:#2d9cdb;">Show parsing details</a>`;
+            document.getElementById('showRawText')?.addEventListener('click', (e)=>{
+              e.preventDefault();
+              alert('OCR detected text:\\n\\n' + (j.raw_text || 'No text'));
+            });
+            document.getElementById('showDebug')?.addEventListener('click', (e)=>{
+              e.preventDefault();
+              alert('Parsing details:\\n\\n' + (j.debug || 'No debug info'));
+            });
+          }
+        } else {
+          if(ocrStatus) ocrStatus.textContent = j.message || j.error || 'OCR failed';
+        }
+      }).catch(()=>{
+        if(ocrStatus) ocrStatus.textContent = 'Network error during OCR.';
+      });
+    });
+  }
+
+  
 
   submitBtn.addEventListener('click', ()=>{
     const items = Array.from(rowsEl.querySelectorAll('.row')).map(r=>({

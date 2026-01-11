@@ -1,1 +1,7 @@
 Flask>=2.0
+Pillow>=10.0
+pytesseract>=0.3.10
+# EasyOCR (optional but preferred). If installation fails, see README for torch CPU wheels.
+easyocr>=1.7.1
+numpy>=1.24.0
+opencv-python-headless>=4.8.0
