@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Hours Tracker - Hiland Dairy</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <main class="container">
+    <nav class="navbar">
+      <div class="app-name">TRAXIT</div>
+      <button id="menuToggle" class="menu-toggle">≡</button>
+    </nav>
+    <div id="menuDropdown" class="menu-dropdown" style="display:none;">
+      <a href="/" class="menu-item">📄 Run Sheet</a>
+      <a href="/hours" class="menu-item">⏱️ Hours Tracker</a>
+      <div class="menu-divider"></div>
+      <button id="darkModeToggle" class="menu-item">🌙 Dark Mode</button>
+    </div>
+    <header class="topbar">
+      <img src="/static/hiland.png" id="logo" alt="Hiland logo">
+      <h1>Hours Tracker</h1>
+    </header>
+
+    <section>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <h2 style="margin:0;">Time Records</h2>
+      </div>
+      <div class="controls" style="margin-bottom:16px;">
+        <button id="filterDay" class="filter-btn">Current Day</button>
+        <button id="filterWeek" class="filter-btn">Current Week</button>
+        <button id="filterMonth" class="filter-btn">Current Month</button>
+        <button id="filterAll" class="filter-btn active">All Time</button>
+        <button id="clearRecords" class="clear-records-btn" style="background:#e74c3c;margin-left:auto;">🗑️ Clear Records</button>
+      </div>
+      <div id="hoursEntries"></div>
+    </section>
+  </main>
+  <script src="/static/hours.js"></script>
+</body>
+</html>

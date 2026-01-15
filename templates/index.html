@@ -8,12 +8,25 @@
 </head>
 <body>
   <main class="container">
+    <nav class="navbar">
+      <div class="app-name">TRAXIT</div>
+      <button id="menuToggle" class="menu-toggle">≡</button>
+    </nav>
+    <div id="menuDropdown" class="menu-dropdown" style="display:none;">
+      <a href="/" class="menu-item">📄 Run Sheet</a>
+      <a href="/hours" class="menu-item">⏱️ Hours Tracker</a>
+      <div class="menu-divider"></div>
+      <button id="darkModeToggle" class="menu-item">🌙 Dark Mode</button>
+    </div>
     <header class="topbar">
       <img src="/static/hiland.png" id="logo" alt="Hiland logo">
       <h1>Gallon Filler Worker: Austin.</h1>
     </header>
     <label>Date
       <input id="date" type="date">
+    </label>
+    <label>Shift Rate (Gallons/Hour)
+      <input id="gallonsPerHour" type="number" min="0" value="1000" step="50">
     </label>
 
     <section class="ocr">
@@ -33,15 +46,22 @@
     <div class="controls">
       <button id="addRow">Add Row</button>
       <button id="submit">Submit</button>
-      <button id="clear">Clear All</button>
+      <button id="clockIn" class="clock-btn" style="display:none;">🕒 Clock In</button>
+      <button id="clockOut" class="clock-btn" style="display:none;">🕛 Clock Out</button>
       <a class="btn" id="export" href="/export">Export CSV</a>
+      <button id="downtimeToggle" class="downtime-btn">⏸️ Start Downtime</button>
     </div>
 
     <section>
-      <h2>Run sheet Entries:</h2>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <h2 style="margin:0;">Run sheet Entries:</h2>
+        <button id="refreshBtn" class="refresh-btn" title="Refresh from server">🔄 Refresh</button>
+      </div>
+      <div id="downtimeStatus" style="display:none;background:#ff6b6b;color:#fff;padding:8px;border-radius:4px;margin:8px 0;font-weight:600;text-align:center;"></div>
+      <p id="startTime" style="font-size:0.9rem;color:#666;margin:4px 0 8px;"></p>
       <div id="entries"></div>
     </section>
   </main>
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=20260114"></script>
 </body>
 </html>

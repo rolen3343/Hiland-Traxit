@@ -3,6 +3,7 @@ import csv
 import io
 import re
 from typing import List, Dict
+from datetime import datetime
 from db import init_db, save_entries, get_entries, get_conn
 
 app = Flask(__name__)
@@ -20,6 +21,11 @@ BRANDS = [
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route('/hours')
+def hours():
+    return render_template('hours.html')
 
 
 @app.route('/api/brands')
@@ -97,8 +103,21 @@ def clear_entries():
         return jsonify({'error': 'clear failed'}), 500
 
 
-@app.route('/api/entries/<int:entry_id>', methods=['PATCH'])
+@app.route('/api/entries/<int:entry_id>', methods=['PATCH', 'DELETE'])
 def update_entry(entry_id):
+    if request.method == 'DELETE':
+        # Permanently delete the entry
+        try:
+            conn = get_conn()
+            cur = conn.cursor()
+            cur.execute('DELETE FROM entries WHERE id=?', (entry_id,))
+            conn.commit()
+            conn.close()
+            return jsonify({'ok': True})
+        except Exception:
+            return jsonify({'error': 'delete failed'}), 500
+    
+    # PATCH method
     data = request.get_json() or {}
     if 'on_run_sheet' not in data:
         return jsonify({'error': 'missing on_run_sheet'}), 400
@@ -110,8 +129,127 @@ def update_entry(entry_id):
         conn.commit()
         conn.close()
         return jsonify({'ok': True})
-    except Exception:
+    except Exception as e:
         return jsonify({'error': 'update failed'}), 500
+
+
+@app.route('/api/settings', methods=['GET', 'POST'])
+def settings():
+    """Store and retrieve user settings (date, gallons per hour, downtime) for cross-device sync."""
+    conn = get_conn()
+    cur = conn.cursor()
+    
+    if request.method == 'POST':
+        data = request.get_json() or {}
+        
+        # Create settings table if it doesn't exist
+        cur.execute('''CREATE TABLE IF NOT EXISTS settings 
+                      (key TEXT PRIMARY KEY, value TEXT)''')
+        
+        # Update or insert all settings
+        for key in ['date', 'gallonsPerHour', 'shiftStartTime', 'isClockedIn', 'isDowntime', 'downtimeStart', 'totalDowntimeMs', 'deletedEntryIds']:
+            value = data.get(key, '')
+            cur.execute('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', 
+                       (key, str(value)))
+        
+        conn.commit()
+        conn.close()
+        return jsonify({'ok': True})
+    
+    else:  # GET
+        cur.execute('SELECT key, value FROM settings')
+        rows = cur.fetchall()
+        conn.close()
+        
+        settings = {}
+        for row in rows:
+            settings[row[0]] = row[1]
+        
+        return jsonify(settings)
+
+
+@app.route('/api/clock', methods=['POST'])
+def clock():
+    """Handle clock in/out for time tracking."""
+    data = request.get_json() or {}
+    action = data.get('action')  # 'in' or 'out'
+    
+    conn = get_conn()
+    cur = conn.cursor()
+    
+    # Create hours table if it doesn't exist
+    cur.execute('''CREATE TABLE IF NOT EXISTS hours 
+                  (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   date TEXT,
+                   clock_in TEXT,
+                   clock_out TEXT,
+                   total_time_ms INTEGER,
+                   downtime_ms INTEGER)''')
+    
+    if action == 'in':
+        # Clock in - create new record
+        date = data.get('date', '')
+        clock_in = datetime.now().isoformat()
+        cur.execute('INSERT INTO hours (date, clock_in) VALUES (?, ?)', (date, clock_in))
+        conn.commit()
+        conn.close()
+        return jsonify({'ok': True})
+    
+    elif action == 'out':
+        # Clock out - update most recent record
+        clock_out = datetime.now().isoformat()
+        total_time_ms = data.get('total_time_ms', 0)
+        downtime_ms = data.get('downtime_ms', 0)
+        
+        cur.execute('''UPDATE hours SET clock_out=?, total_time_ms=?, downtime_ms=? 
+                      WHERE id = (SELECT id FROM hours ORDER BY id DESC LIMIT 1)''',
+                   (clock_out, total_time_ms, downtime_ms))
+        conn.commit()
+        conn.close()
+        return jsonify({'ok': True})
+    
+    conn.close()
+    return jsonify({'error': 'invalid action'}), 400
+
+
+@app.route('/api/hours', methods=['GET'])
+def get_hours():
+    """Get all time records."""
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute('''SELECT id, date, clock_in, clock_out, total_time_ms, downtime_ms 
+                      FROM hours ORDER BY id DESC''')
+        rows = cur.fetchall()
+        conn.close()
+        
+        records = []
+        for row in rows:
+            records.append({
+                'id': row[0],
+                'date': row[1],
+                'clock_in': row[2],
+                'clock_out': row[3],
+                'total_time_ms': row[4] or 0,
+                'downtime_ms': row[5] or 0
+            })
+        return jsonify(records)
+    except Exception:
+        return jsonify([])
+
+
+@app.route('/api/hours/clear', methods=['POST'])
+def clear_hours():
+    """Clear all time records."""
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute('DELETE FROM hours')
+        conn.commit()
+        conn.close()
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
 
 
 def _ocr_text_from_image_bytes(data: bytes) -> str:
