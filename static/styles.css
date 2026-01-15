@@ -77,6 +77,20 @@ body.dark-mode .refresh-btn:hover{background:#1e5bbf}
 body.dark-mode .refresh-btn:disabled{background:#444}
 .exclude{font-size:0.8rem;display:flex;align-items:center;gap:6px}
 section h2{font-size:1.1rem;margin-top:16px}
+.ocr{background:#f8f9fa;border:2px solid #2d9cdb;border-radius:8px;padding:16px;margin:16px 0;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
+.ocr h2{margin-top:0;color:#2d9cdb;font-size:1.2rem}
+.ocr p{color:#666;margin:8px 0 12px;font-size:0.95rem}
+.ocr-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ocr-controls input[type="file"]{flex:1;min-width:200px;padding:8px;border:1px solid #ddd;border-radius:4px;background:#fff}
+.ocr-controls button{padding:10px 16px;background:#27ae60;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;transition:background 0.2s}
+.ocr-controls button:hover{background:#229954}
+.status{margin-top:8px;padding:8px;border-radius:4px;font-size:0.9rem}
+body.dark-mode .ocr{background:#2a2a2a;border-color:#2d6df6}
+body.dark-mode .ocr h2{color:#5bc0de}
+body.dark-mode .ocr p{color:#aaa}
+body.dark-mode .ocr-controls input[type="file"]{background:#333;border-color:#555;color:#e0e0e0}
+body.dark-mode .ocr-controls button{background:#229954}
+body.dark-mode .ocr-controls button:hover{background:#1e8449}
 .entry{padding:12px 8px;border-bottom:1px solid #eee;margin-bottom:8px}
 .entry-title{font-weight:600;font-size:1rem;margin-bottom:6px}
 .entry-time{font-size:0.95rem;color:#2d9cdb;font-weight:500;margin-bottom:6px;margin-left:12px}
